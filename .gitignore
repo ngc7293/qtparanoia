@@ -1,0 +1,10 @@
+# Build
+obj/
+Makefile
+qtparanoia
+
+# QT
+.qmake.stash
+
+# IDE
+.vscode/
