@@ -16,7 +16,9 @@ Worker::Worker(QString artist_folder, QString album_folder)
 
 Worker::~Worker()
 {
-    
+    if (cdparanoia_) {
+        emit processAbort();
+    }
 }
 
 void Worker::run()
@@ -25,13 +27,13 @@ void Worker::run()
 
     // Create artist folder
     if (!folder.mkdir(artist_folder_) || !folder.cd(artist_folder_)) {
-        std::cout << "Could not move to folder \'" << artist_folder_.toStdString() << "\'";
+        std::cerr << "Could not move to folder \'" << artist_folder_.toStdString() << "\'" << std::endl;
         return;
     }
 
     // Create album folder
     if (!folder.mkdir(album_folder_) || !folder.cd(album_folder_)) {
-        std::cout << "Could not move to folder \'" << album_folder_.toStdString() << "\'";
+        std::cerr << "Could not move to folder \'" << album_folder_.toStdString() << "\'"  << std::endl;
         return;
     }
 
@@ -40,46 +42,36 @@ void Worker::run()
 
     cdparanoia_->setProgram("cdparanoia");
     cdparanoia_->setArguments(QStringList("-B"));
+    cdparanoia_->setWorkingDirectory(folder.absolutePath());
 
     connect(cdparanoia_, SIGNAL(readyReadStandardError()), this, SLOT(processOuput()));
     connect(cdparanoia_, SIGNAL(readyReadStandardOutput()), this, SLOT(processOuput()));
     connect(cdparanoia_, SIGNAL(finished(int)), this, SLOT(processFinished(int)));
+    connect(this, SIGNAL(processAbort()), cdparanoia_, SLOT(kill()));
 
     cdparanoia_->start();
-    cdparanoia_->waitForFinished();
-}
-
-void Worker::abort()
-{
-    if (cdparanoia_)
-        cdparanoia_->kill();
+    emit tracks(0);
 }
 
 void Worker::processOuput()
 {
+    // Apparently CDParanoia prints to stderr...
     QString stderr = cdparanoia_->readAllStandardError();
-    QString stdout = cdparanoia_->readAllStandardOutput();
 
-    QRegExp sectors("^\\s*to sector\\s*(\\d+)");
-    // QRegExp current("^\\s*( == PROGRESS == \\[.*\\| (\\d+)");
-    // QRegExp progress("PROGRESS");
+    QRegExp count("to sector\\s*\\d+\\s*\\(track\\s*(\\d+)");
+    QRegExp current("outputting to track(\\d\\d)\\.");
 
-    std::cout << "\"" << stderr.toStdString() << "\"" << std::endl;
-    //if (sectors.indexIn(stderr) != -1) {
-    //emit Worker::sectors(sectors.capturedTexts()[0].toInt());
-    //}
-    // if (current.indexIn(stderr) != -1) {
-    //     emit Worker::progress(sectors.capturedTexts()[0].toInt());
-    // }
-    // if (progress.indexIn(stderr) != -1) {
-    //     std::cout << "PROGRESS" << std::endl;
-    // }
-
+    if (count.indexIn(stderr) != -1) {
+        emit tracks(count.capturedTexts()[1].toInt());
+    }
+    if (current.indexIn(stderr) != -1) {
+        emit progress(current.capturedTexts()[1].toInt());
+    }
 }
 
 void Worker::processFinished(int code)
 {
+    std::cout << "done" << std::endl;
+    emit done(code);
     delete cdparanoia_;
-
-    std::cout << "Ended with code: " << code << std::endl;
 }

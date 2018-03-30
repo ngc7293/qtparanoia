@@ -5,6 +5,7 @@ qtparanoia
 
 # QT
 .qmake.stash
+ui_app.h # auto generated on build
 
 # IDE
 .vscode/

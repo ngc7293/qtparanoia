@@ -24,13 +24,13 @@ private slots:
 
 public slots:
     void run();
-    void abort();
 
 signals:
-    void sectors(int count);
     void tracks(int count);
-    void progress(int sectors);
+    void progress(int track);
     void done(int code);
+
+    void processAbort();
 };
 
 #endif // WORKER_H

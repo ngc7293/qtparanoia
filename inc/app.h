@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QThread>
+#include <QStringListModel>
 
 #include "worker.h"
 
@@ -16,7 +17,8 @@ class App : public QMainWindow {
 private:
     Ui::App* ui_;
 
-    QThread* thread_;
+    Worker* worker_;
+    QStringListModel* model_;
 
 public:
     explicit App(QWidget* parent = 0);
@@ -24,9 +26,7 @@ public:
 
 private slots:
     void onRipButtonClicked();
-
-signals:
-    void startWorker(QString artist_folder, QString album_folder);
+    void onTrackCount(int count);
 };
 
 #endif // APP_H
