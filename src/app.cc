@@ -4,10 +4,10 @@
 
 #include <QStringListModel>
 
+#include "tasks/cdinfotask.h"
+
 #include "app.h"
 #include "ui_app.h"
-
-#include "worker.h"
 
 App::App(QWidget* parent)
     : QMainWindow(parent)
@@ -22,40 +22,54 @@ App::App(QWidget* parent)
     ui_->progress_bar->setMinimum(0);
     ui_->progress_bar->setValue(0);
 
-    model_ = new QStringListModel();
-
     QObject::connect(ui_->rip_button, SIGNAL(clicked()), this, SLOT(onRipButtonClicked()));
+    QObject::connect(ui_->abort_button, SIGNAL(clicked()), this, SLOT(onAbortButtonClicked()));
+    QObject::connect(ui_->device_dropdown, SIGNAL(currentIndexChanged(int)), this, SLOT(onDeviceSelect(int)));
+    model_ = new TagTableModel();
+    ui_->tag_table->setModel(model_);
+
+    cdinfo_ = new CDInfoTask();
+    QObject::connect(cdinfo_, SIGNAL(done(int)), this, SLOT(onCDInfoReady(int)));
+    cdinfo_->start();
+    ui_->progress_bar->setRange(0, 0);
 }
 
 App::~App()
 {
-    if (worker_) {
-        delete worker_;
-    }
-    delete ui_;
     delete model_;
+    delete ui_;
 }
 
 void App::onRipButtonClicked()
 {
-    QString artist_folder;
-    QString album_folder;
-
-    artist_folder = ui_->artist_input->text();
-    album_folder = ui_->album_input->text() + " (" + ui_->year_input->text() + ")";
-    worker_ = new Worker(artist_folder, album_folder);
-    QObject::connect(worker_, SIGNAL(tracks(int)), ui_->progress_bar, SLOT(setMaximum(int)));
-    QObject::connect(worker_, SIGNAL(tracks(int)), this, SLOT(onTrackCount(int)));
-    QObject::connect(worker_, SIGNAL(progress(int)), ui_->progress_bar, SLOT(setValue(int)));
-    worker_->run();
 }
 
-void App::onTrackCount(int count)
+void App::onAbortButtonClicked()
 {
-    QStringList list;
+    if (cdinfo_) {
+        cdinfo_->abort();
+        delete cdinfo_;
+    }
+}
 
-    for (int i = 1; i <= count; ++i)
-        list << (QString("track%02").arg(i));
-    model_->setStringList(list);
-    ui_->track_list->setModel(model_);
+void App::onDeviceSelect(int index)
+{
+    AudioDisk* disk = disks_[index];
+    ui_->album_input->setText(disk->title());
+    ui_->artist_input->setText(disk->artist());
+    ui_->progress_bar->setRange(0, disk->trackcount());
+    model_->set_disk(disk);
+}
+
+void App::onCDInfoReady(int code)
+{
+    if (code == 0) {
+        disks_ = cdinfo_->result();
+        for (AudioDisk* disk : disks_) {
+            ui_->device_dropdown->addItem(disk->title() + " (" + disk->device() + ")", disk->device());
+        }
+        ui_->progress_bar->setRange(0, 1);
+    }
+
+    delete cdinfo_;
 }

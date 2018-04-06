@@ -26,11 +26,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         src/main.cc \
         src/app.cc \
-        src/worker.cc
+        src/track.cc \
+        src/audiodisk.cc \
+        src/tasks/task.cc \
+        src/tasks/cdinfotask.cc \
+        src/model/tagtablemodel.cc
 
 HEADERS += \
         inc/app.h \
-        inc/worker.h
+        inc/track.h \
+        inc/audiodisk.h \
+        inc/tasks/task.h \
+        inc/tasks/cdinfotask.h \
+        inc/model/tagtablemodel.h
 
 FORMS += \
         ui/app.ui
@@ -40,3 +48,4 @@ INCLUDEPATH += \
 
 OBJECTS_DIR = obj
 MOC_DIR = obj
+LIBS = -lcdio -lcdio_cdda -lcdio_paranoia
