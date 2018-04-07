@@ -31,10 +31,15 @@ public:
     ~App();
 
 private slots:
+    // UI
     void onRipButtonClicked();
     void onAbortButtonClicked();
 
+    void onAlbumInfoChanged();
+
     void onDeviceSelect(int index);
+
+    // Tasks
     void onCDInfoReady(int code);
 
     void onParanoiaStarted(unsigned int sectors);

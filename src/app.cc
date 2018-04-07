@@ -14,6 +14,8 @@
 App::App(QWidget* parent)
     : QMainWindow(parent)
     , ui_(new Ui::App())
+    , paranoia_(nullptr)
+    , selected_(nullptr)
 {
     ui_->setupUi(this);
 
@@ -27,6 +29,10 @@ App::App(QWidget* parent)
     QObject::connect(ui_->rip_button, SIGNAL(clicked()), this, SLOT(onRipButtonClicked()));
     QObject::connect(ui_->abort_button, SIGNAL(clicked()), this, SLOT(onAbortButtonClicked()));
     QObject::connect(ui_->device_dropdown, SIGNAL(currentIndexChanged(int)), this, SLOT(onDeviceSelect(int)));
+    QObject::connect(ui_->album_input, SIGNAL(textChanged(QString)), this, SLOT(onAlbumInfoChanged()));
+    QObject::connect(ui_->artist_input, SIGNAL(textChanged(QString)), this, SLOT(onAlbumInfoChanged()));
+    QObject::connect(ui_->year_input, SIGNAL(valueChanged(int)), this, SLOT(onAlbumInfoChanged()));
+
     model_ = new TagTableModel();
     ui_->tag_table->setModel(model_);
 
@@ -71,6 +77,15 @@ void App::onAbortButtonClicked()
         paranoia_->stop();
         delete paranoia_;
         paranoia_ = nullptr;
+    }
+}
+
+void App::onAlbumInfoChanged()
+{
+    if (selected_) {
+        selected_->set_title(ui_->album_input->text());
+        selected_->set_artist(ui_->artist_input->text());
+        selected_->set_year(ui_->year_input->value());
     }
 }
 
@@ -120,8 +135,6 @@ void App::onParanoiaTrackChange(unsigned int track)
 
 void App::onParanoiaDone(int code)
 {
-    std::cout << "paranoia exited with " << code << std::endl;
-
     ui_->progress_bar->setRange(0, 1);
     ui_->progress_bar->setFormat("%v/%m");
 

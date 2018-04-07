@@ -26,12 +26,14 @@ void ParanoiaTask::run()
         return;
     }
     dir.cd(disk_->artist());
-    
-    if (!dir.mkdir(disk_->title())) {
+
+    std::stringstream album_folder;
+    album_folder << disk_->title().toStdString() << " (" << disk_->year() << ")";
+    if (!dir.mkdir(album_folder.str().c_str())) {
         emit done(1);
         return;
     }
-    dir.cd(disk_->title());
+    dir.cd(album_folder.str().c_str());
 
     cdrom_drive_t* drive = cdio_cddap_identify(disk_->device().toStdString().c_str(), 1, NULL);
     cdda_verbose_set(drive, CDDA_MESSAGE_PRINTIT, CDDA_MESSAGE_PRINTIT);
