@@ -12,6 +12,7 @@ private:
 
     QString title_;
     QString artist_;
+
     QString device_;
 
 public:
@@ -30,6 +31,7 @@ public:
 
     QString title() const { return title_; }
     QString artist() const { return artist_; }
+
     QString device() const { return device_; }
 
 signals:

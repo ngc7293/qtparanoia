@@ -19,7 +19,7 @@ protected:
 
 public:
     Task();
-    ~Task();
+    virtual ~Task();
 
     void start();
 
@@ -28,7 +28,7 @@ protected:
     bool aborted();
 
 public slots:
-    void abort();
+    void stop();
 
 signals:
     void done(int code);

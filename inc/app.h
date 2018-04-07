@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include "tasks/cdinfotask.h"
+#include "tasks/paranoiatask.h"
 #include "model/tagtablemodel.h"
 
 namespace Ui {
@@ -17,11 +18,13 @@ private:
     Ui::App* ui_;
 
     // Data
+    AudioDisk* selected_;
     std::vector<AudioDisk*> disks_;
     TagTableModel* model_;
 
     // Tasks
     CDInfoTask* cdinfo_;
+    ParanoiaTask* paranoia_;
 
 public:
     explicit App(QWidget* parent = 0);
@@ -33,6 +36,11 @@ private slots:
 
     void onDeviceSelect(int index);
     void onCDInfoReady(int code);
+
+    void onParanoiaStarted(unsigned int sectors);
+    void onParanoiaProgress(unsigned int sector);
+    void onParanoiaTrackChange(unsigned int track);
+    void onParanoiaDone(int code);
 };
 
 #endif // APP_H

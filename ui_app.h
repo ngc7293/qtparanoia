@@ -156,6 +156,7 @@ public:
         progress_bar->setObjectName(QStringLiteral("progress_bar"));
         progress_bar->setMaximum(1);
         progress_bar->setValue(0);
+        progress_bar->setFormat(QStringLiteral("%v/%m"));
 
         vbox_1->addWidget(progress_bar);
 
@@ -184,7 +185,6 @@ public:
         artist_label->setText(QApplication::translate("App", "Artist", Q_NULLPTR));
         album_label->setText(QApplication::translate("App", "Album", Q_NULLPTR));
         year_label->setText(QApplication::translate("App", "Year", Q_NULLPTR));
-        progress_bar->setFormat(QApplication::translate("App", "%v/%m", Q_NULLPTR));
     } // retranslateUi
 
 };

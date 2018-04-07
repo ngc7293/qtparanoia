@@ -8,13 +8,13 @@
 #include "audiodisk.h"
 
 class CDInfoTask : public Task {
-private:
 
+private:
     std::vector<AudioDisk*> disks_;
 
 public:
     CDInfoTask();
-    ~CDInfoTask();
+    virtual ~CDInfoTask();
 
     std::vector<AudioDisk*> result() { return disks_; }
 

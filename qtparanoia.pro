@@ -30,6 +30,7 @@ SOURCES += \
         src/audiodisk.cc \
         src/tasks/task.cc \
         src/tasks/cdinfotask.cc \
+        src/tasks/paranoiatask.cc \
         src/model/tagtablemodel.cc
 
 HEADERS += \
@@ -38,6 +39,7 @@ HEADERS += \
         inc/audiodisk.h \
         inc/tasks/task.h \
         inc/tasks/cdinfotask.h \
+        inc/tasks/paranoiatask.h \
         inc/model/tagtablemodel.h
 
 FORMS += \

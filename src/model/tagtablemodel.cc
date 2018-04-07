@@ -10,7 +10,6 @@ TagTableModel::TagTableModel()
 
 TagTableModel::~TagTableModel()
 {
-    delete disk_;
 }
 
 int TagTableModel::rowCount(const QModelIndex& parent) const 
@@ -44,7 +43,7 @@ QVariant TagTableModel::headerData(int section, Qt::Orientation orientation, int
                 return QString("Status");
             }
         } else {
-            return QString("%02").arg(section);
+            return QString("%1").arg(section + 1);
         }
     }
     return QVariant();

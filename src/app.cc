@@ -1,4 +1,6 @@
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #include <time.h>
 
@@ -42,23 +44,43 @@ App::~App()
 
 void App::onRipButtonClicked()
 {
+    ui_->progress_bar->setRange(0, 0);
+    ui_->device_dropdown->setDisabled(true);
+    ui_->rip_button->setDisabled(true);
+
+    paranoia_ = new ParanoiaTask(selected_);
+    QObject::connect(paranoia_, SIGNAL(started(unsigned int)), this, SLOT(onParanoiaStarted(unsigned int)));
+    QObject::connect(paranoia_, SIGNAL(progress(unsigned int)), this, SLOT(onParanoiaProgress(unsigned int)));
+    QObject::connect(paranoia_, SIGNAL(trackChanged(unsigned int)), this, SLOT(onParanoiaTrackChange(unsigned int)));
+    QObject::connect(paranoia_, SIGNAL(done(int)), this, SLOT(onParanoiaDone(int)));
+    paranoia_->start();
 }
 
 void App::onAbortButtonClicked()
 {
+    ui_->device_dropdown->setDisabled(false);
+    ui_->rip_button->setDisabled(false);
+
     if (cdinfo_) {
-        cdinfo_->abort();
+        cdinfo_->stop();
         delete cdinfo_;
+        paranoia_ = nullptr;
+    }
+
+    if (paranoia_) {
+        paranoia_->stop();
+        delete paranoia_;
+        paranoia_ = nullptr;
     }
 }
 
 void App::onDeviceSelect(int index)
 {
-    AudioDisk* disk = disks_[index];
-    ui_->album_input->setText(disk->title());
-    ui_->artist_input->setText(disk->artist());
-    ui_->progress_bar->setRange(0, disk->trackcount());
-    model_->set_disk(disk);
+    selected_ = disks_[index];
+    ui_->album_input->setText(selected_->title());
+    ui_->artist_input->setText(selected_->artist());
+    ui_->progress_bar->setRange(0, selected_->trackcount());
+    model_->set_disk(selected_);
 }
 
 void App::onCDInfoReady(int code)
@@ -68,8 +90,41 @@ void App::onCDInfoReady(int code)
         for (AudioDisk* disk : disks_) {
             ui_->device_dropdown->addItem(disk->title() + " (" + disk->device() + ")", disk->device());
         }
-        ui_->progress_bar->setRange(0, 1);
+        selected_ = disks_[0];
+        ui_->progress_bar->setRange(0, selected_->trackcount());
     }
 
     delete cdinfo_;
+    cdinfo_ = nullptr;
+}
+
+void App::onParanoiaStarted(unsigned int sectors)
+{
+    ui_->progress_bar->setRange(0, sectors);
+    std::stringstream ss;
+    ss << 0 << "/" << selected_->trackcount();
+    ui_->progress_bar->setFormat(ss.str().c_str());
+}
+
+void App::onParanoiaProgress(unsigned int sector)
+{
+    ui_->progress_bar->setValue(sector);
+}
+
+void App::onParanoiaTrackChange(unsigned int track)
+{
+    std::stringstream ss;
+    ss << track << "/" << selected_->trackcount();
+    ui_->progress_bar->setFormat(ss.str().c_str());
+}
+
+void App::onParanoiaDone(int code)
+{
+    std::cout << "paranoia exited with " << code << std::endl;
+
+    ui_->progress_bar->setRange(0, 1);
+    ui_->progress_bar->setFormat("%v/%m");
+
+    delete paranoia_;
+    paranoia_ = nullptr;
 }

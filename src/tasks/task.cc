@@ -13,6 +13,7 @@ Task::~Task()
     if (thread_) {
         thread_->join();
         delete thread_;
+        thread_ = nullptr;
     }
 }
 
@@ -30,10 +31,17 @@ bool Task::aborted()
     return aborted;
 }
 
-void Task::abort()
+void Task::stop()
 {
     quitlock_.lock();
     quit_ = true;
     quitlock_.unlock();
-    delete this;
+
+    if (thread_) {
+        thread_->join();
+        delete thread_;
+        thread_ = nullptr;
+    }
+
+    emit done(1);
 }
