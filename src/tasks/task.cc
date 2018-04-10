@@ -22,13 +22,12 @@ void Task::start()
     thread_ = new std::thread(&Task::run, this);
 }
 
-bool Task::aborted()
+bool Task::is_stopped()
 {
-    bool aborted;
     quitlock_.lock();
-    aborted = quit_;
+    bool val = quit_;
     quitlock_.unlock();
-    return aborted;
+    return val;
 }
 
 void Task::stop()

@@ -25,7 +25,7 @@ public:
 
 protected:
     virtual void run() = 0;
-    bool aborted();
+    bool is_stopped();
 
 public slots:
     void stop();

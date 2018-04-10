@@ -102,11 +102,20 @@ void App::onCDInfoReady(int code)
 {
     if (code == 0) {
         disks_ = cdinfo_->result();
-        for (AudioDisk* disk : disks_) {
-            ui_->device_dropdown->addItem(disk->title() + " (" + disk->device() + ")", disk->device());
+        if (disks_.size() > 0) {
+            for (AudioDisk* disk : disks_) {
+                ui_->device_dropdown->addItem(disk->title() + " (" + disk->device() + ")", disk->device());
+            }
+            selected_ = disks_[0];
+            ui_->progress_bar->setRange(0, selected_->trackcount());
         }
-        selected_ = disks_[0];
-        ui_->progress_bar->setRange(0, selected_->trackcount());
+        else {
+            ui_->rip_button->setEnabled(false);
+            ui_->abort_button->setEnabled(false);
+            ui_->device_dropdown->setEnabled(false);
+            ui_->progress_bar->setRange(0, 1);
+            ui_->progress_bar->setFormat("");
+        }
     }
 
     delete cdinfo_;

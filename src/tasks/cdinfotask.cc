@@ -17,15 +17,17 @@ CDInfoTask::~CDInfoTask()
 void CDInfoTask::run()
 {
     // Find all Audio CDs
-    char **drives = cdio_get_devices_with_cap(NULL, CDIO_FS_AUDIO, false);
+    char** drives = cdio_get_devices_with_cap(nullptr, CDIO_FS_AUDIO, false);
 
     // Read info for each drive
-    for (int i = 0; drives[i] != NULL; ++i) {
-        if (drives[i] != nullptr) {
-            readInfo(std::string(drives[i]));
+    if (*drives != nullptr) {
+        for (int i = 0; drives[i] != nullptr; ++i) {
+            if (drives[i] != nullptr) {
+                readInfo(std::string(drives[i]));
+            }
         }
     }
-
+    
     emit done(0);
 }
 
