@@ -1,13 +1,13 @@
 #ifndef PARANOIATASK_H
 #define PARANOIATASK_H
 
-#include "tasks/task.h"
+#include "tasks/threadedtask.h"
 
 #include <fstream>
 
 #include "audiodisk.h"
 
-class ParanoiaTask : public Task {
+class ParanoiaTask : public ThreadedTask {
     Q_OBJECT
 
 private:

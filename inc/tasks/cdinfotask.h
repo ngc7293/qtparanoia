@@ -1,13 +1,13 @@
 #ifndef CDINFOTASK_H
 #define CDINFOTASK_H
 
-#include "task.h"
+#include "tasks/threadedtask.h"
 
 #include <string>
 
 #include "audiodisk.h"
 
-class CDInfoTask : public Task {
+class CDInfoTask : public ThreadedTask {
 
 private:
     std::vector<AudioDisk*> disks_;

@@ -14,8 +14,8 @@
 App::App(QWidget* parent)
     : QMainWindow(parent)
     , ui_(new Ui::App())
-    , paranoia_(nullptr)
     , selected_(nullptr)
+    , paranoia_(nullptr)
 {
     ui_->setupUi(this);
 
@@ -29,8 +29,8 @@ App::App(QWidget* parent)
     QObject::connect(ui_->rip_button, SIGNAL(clicked()), this, SLOT(onRipButtonClicked()));
     QObject::connect(ui_->abort_button, SIGNAL(clicked()), this, SLOT(onAbortButtonClicked()));
     QObject::connect(ui_->device_dropdown, SIGNAL(currentIndexChanged(int)), this, SLOT(onDeviceSelect(int)));
-    QObject::connect(ui_->album_input, SIGNAL(textChanged(QString)), this, SLOT(onAlbumInfoChanged()));
-    QObject::connect(ui_->artist_input, SIGNAL(textChanged(QString)), this, SLOT(onAlbumInfoChanged()));
+    QObject::connect(ui_->album_input, SIGNAL(textEdited(QString)), this, SLOT(onAlbumInfoChanged()));
+    QObject::connect(ui_->artist_input, SIGNAL(textEdited(QString)), this, SLOT(onAlbumInfoChanged()));
     QObject::connect(ui_->year_input, SIGNAL(valueChanged(int)), this, SLOT(onAlbumInfoChanged()));
 
     model_ = new TagTableModel();
@@ -92,10 +92,11 @@ void App::onAlbumInfoChanged()
 void App::onDeviceSelect(int index)
 {
     selected_ = disks_[index];
+    model_->set_disk(selected_);
+
     ui_->album_input->setText(selected_->title());
     ui_->artist_input->setText(selected_->artist());
-    ui_->progress_bar->setRange(0, selected_->trackcount());
-    model_->set_disk(selected_);
+    ui_->year_input->setValue(selected_->year());
 }
 
 void App::onCDInfoReady(int code)

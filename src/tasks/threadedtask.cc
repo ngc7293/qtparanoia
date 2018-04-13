@@ -1,14 +1,15 @@
-#include "tasks/task.h"
+#include "tasks/threadedtask.h"
 
 #include <iostream>
 #include <thread>
 #include <mutex>
 
-Task::Task()
+ThreadedTask::ThreadedTask()
 {
+    quit_ = false;
 }
 
-Task::~Task()
+ThreadedTask::~ThreadedTask()
 {
     if (thread_) {
         thread_->join();
@@ -17,12 +18,12 @@ Task::~Task()
     }
 }
 
-void Task::start()
+void ThreadedTask::start()
 {
-    thread_ = new std::thread(&Task::run, this);
+    thread_ = new std::thread(&ThreadedTask::run, this);
 }
 
-bool Task::is_stopped()
+bool ThreadedTask::is_stopped()
 {
     quitlock_.lock();
     bool val = quit_;
@@ -30,7 +31,7 @@ bool Task::is_stopped()
     return val;
 }
 
-void Task::stop()
+void ThreadedTask::stop()
 {
     quitlock_.lock();
     quit_ = true;
